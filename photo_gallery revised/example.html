@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>Fluid Layout Gallery</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="gallery.css" />
+  </head>
+  <body>
+    <main>
+      <h1>My Photo Gallery</h1>
+      <figure>
+        <img src="https://placehold.co/1200x900/orange/white/png" alt="" />
+        <figcaption>Photo 1</figcaption>
+      </figure>
+      <ul>
+        <li><img src="https://placehold.co/1200x900/orange/white/png" alt="" title="Photo 1" class='active'/></li>
+        <li><img src="https://placehold.co/1200x900/red/white/png" alt="" title="Photo 2" /></li>
+        <li><img src="https://placehold.co/1200x900/green/white/png" alt="" title="Photo 3" /></li>
+        <li><img src="https://placehold.co/1200x900/yellow/white/png" alt="" title="Photo 4" /></li>
+      </ul>
+    </main>
+
+    <script type="text/javascript">
+      document.addEventListener('DOMContentLoaded', () => {
+        const figure = document.querySelector('figure');
+        const images = document.querySelectorAll('ul img');
+
+        [...images].forEach(image => {
+          image.addEventListener('click', (e) => {
+            document.querySelector('.active').classList.remove('active');
+
+            image.classList.add('active');
+            figure.querySelector('img').src = image.src;
+            figure.querySelector('figcaption').textContent = image.title;
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

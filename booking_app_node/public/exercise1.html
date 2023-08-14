@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Exercise 1: Getting Schedules</title>
+  <script>
+    function getSchedules() {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', '/api/schedules');
+      xhr.responseType = 'json';
+      xhr.timeout = 5000;
+
+      xhr.addEventListener('load', () => {
+        const response = xhr.response;
+        const schedules = {};
+
+        // create schedules object
+        response.forEach(({staff_id}) => {
+          let key = `staff ${staff_id}`;
+          if (schedules[key]) {
+            schedules[key] += 1;
+          } else {
+            schedules[key] = 1;
+          }
+        });
+
+        if (schedules) {
+          alert(Object.keys(schedules).map(key => `${key}: ${schedules[key]}`).join('\n'));
+        } else {
+          alert('There are no schedules.');
+        }
+      });
+
+      xhr.addEventListener('timeout', () => {
+        alert('Request has timed out. Please try again.');
+      });
+
+      xhr.send();
+    }
+  </script>
+</head>
+<body>
+<!--   <script>
+    function getSchedules() {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', '/api/schedules');
+      xhr.setRequestHeader('application/json');
+
+      xhr.send();
+    }
+  </script> -->
+</body>
+</html>

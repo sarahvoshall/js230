@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Getting Schedules</title>
+	<script>
+    // document.addEventListener('DOMContentLoaded', () => {
+    //   retrieveAndProcessSchedules();
+    // });
+
+    // // using async / await
+    // async function retrieveSchedules() {
+    //   return new Promise((resolve, reject) => {
+    //     const xhr = new XMLHttpRequest();
+    //     xhr.open('GET', 'http://localhost:3000/api/schedules');
+    //     xhr.timeout = 5000;
+    //     xhr.responseType = 'json';
+
+    //     xhr.addEventListener('load', () => {
+    //       if (xhr.status === 200) {
+    //         resolve(xhr.response);
+    //       } else {
+    //         reject(new Error(`Request failed with status: ${xhr.status}`));
+    //       }
+    //     });
+
+    //     xhr.addEventListener('timeout', () => {
+    //       reject(new Error('This request has timed out.'));
+    //     });
+
+    //     xhr.send();
+    //   });
+    // }
+
+    // async function retrieveAndProcessSchedules() {
+    //   try {
+    //     const schedules = await retrieveSchedules();
+    //     generateAlert(schedules);
+    //   } catch (error) {
+    //     alert('Error occurred.');
+    //   } finally {
+    //     alert('The request has completed.');
+    //   }
+    // }
+
+    // async function retrieveAndProcessSchedules() {
+    //   try {
+    //     const schedules = await retrieveSchedules();
+
+    //     const staffs = [];
+    //     const tally = [];
+
+    //     if (schedules.length > 0) {
+    //       schedules.forEach(({ staff_id }) => {
+    //         const key = `staff ${String(staff_id)}`;
+    //         if (!staffs.includes(key)) {
+    //           staffs.push(key);
+    //           tally.push(1);
+    //         } else {
+    //           tally[staffs.indexOf(key)] += 1;
+    //         }
+    //       });
+    //       alert(tally.map((_, index) => `${staffs[index]}: ${tally[index]}`).join('\n'));
+    //     } else {
+    //       alert('There are no schedules currently available for booking.');
+    //     }
+    //   } catch (error) {
+    //     alert(`Error occurred: ${error.message}`);
+    //   } finally {
+    //     alert('The request has completed.');
+    //   }
+    // }
+
+
+    // helper function
+    function generateAlert(schedules) {
+      const staff = [];
+      const tally = [];
+
+      if (schedules.length > 0) {
+        schedules.forEach(({staff_id}) => {
+          const key = `staff: ${staff_id}`;
+
+          if (!staff.includes(key)) {
+            staff.push(key);
+            tally.push(1);
+          } else {
+            tally[staff.indexOf(key)] += 1;
+          }
+        });
+        alert(tally.map((_, index) => `${staff[index]}: ${tally[index]}`).join('\n'));
+      } else {
+        alert('There are no schedules available for this booking.');
+      }
+    }
+
+    // using promises
+    document.addEventListener('DOMContentLoaded', () => {
+      retrieveSchedules().then(schedules => {
+        generateAlert(schedules);
+      }).catch(error => {
+        alert(`Error occurred: ${error.message}`);
+      }).finally(() => {
+        alert('The request has completed.');
+      });
+    });
+
+    function retrieveSchedules() {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'http://localhost:3000/api/schedules');
+        xhr.timeout = 5000;
+        xhr.responseType = 'json';
+
+        xhr.addEventListener('load', () => {
+          if (xhr.status === 200) {
+            resolve(xhr.response);
+          } else {
+            reject(new Error(`Request has failed with status code: ${xhr.status}`));
+          }
+        });
+
+        xhr.addEventListener('timeout', () => {
+          reject(new Error('Request has timed out.'));
+        });
+
+        xhr.send();
+      });
+    }
+
+    // vanilla
+    // document.addEventListener('DOMContentLoaded', () => {
+    //   retrieveSchedules();
+    // });
+
+		// function retrieveSchedules() {
+		//   const request = new XMLHttpRequest();
+
+		//   request.open('GET', 'http://localhost:3000/api/schedules');
+		//   request.timeout = 5000;
+		//   request.responseType = 'json';
+
+		//   request.addEventListener('load', e => {
+		//   	const schedules = request.response;
+		//   	generateAlert(schedules);
+		//   });
+
+		//   request.addEventListener('timeout', e => {
+		//   	alert('It is taking longer than usual, please try again later.');
+		//   });
+
+		//   request.addEventListener('loadend', e => {
+		//   	alert('The request has completed.');
+		//   });
+
+		//   request.send();
+		// }
+	</script>
+</head>
+<body>
+
+</body>
+</html>

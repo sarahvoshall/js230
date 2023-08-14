@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Collection Example</title>
+</head>
+<body>
+  <p>Click the button to build your list.</p>
+
+  <button>Increment list</button>
+
+  <ul>
+  </ul>
+
+  <script>
+    const ul = document.querySelector('ul');
+    const button = document.querySelector('button');
+    const p = document.querySelector('p');
+
+    const liveCollection = document.getElementsByTagName('li');
+    const staticCollection = document.querySelectorAll('li');
+
+    // document.addEventListener('DOMContentLoaded', () => {
+    //   setInterval(() => {
+    //     console.log(document.querySelectorAll('li'));
+    //   }, 2000);
+    // });
+
+    button.addEventListener('click', () => {
+      const newLi = document.createElement('li');
+      newLi.textContent = 'Item';
+      ul.appendChild(newLi);
+
+      // Watch how the collections are affected in the console with each click
+      console.log(liveCollection);
+      console.log(staticCollection);
+
+      if (liveCollection.length === 5) {
+        button.disabled = true;
+        p.textContent = `You're out of items!`;
+      }
+    });
+  </script>
+</body>
+</html>
+
+<!-- <body>
+  <ul>
+  </ul>
+
+  <button>Increment list</button>
+
+  <script>
+    const ul = document.querySelector('ul');
+    const button = document.querySelector('button');
+    const liveCollection = ul.children;
+    const staticCollection = document.querySelectorAll('li');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setInterval(() => {
+        console.log(liveCollection);
+        console.log(staticCollection);
+      }, 2000);
+    });
+
+    button.addEventListener('click', () => {
+      const newLi = document.createElement('li');
+      newLi.textContent = 'Item';
+      ul.appendChild(newLi);
+    });
+  </script>
+</body> -->

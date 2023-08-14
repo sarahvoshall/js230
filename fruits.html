@@ -1,0 +1,38 @@
+<ul>
+  <li class="list list-group">Fruits
+    <ul>
+      <li class="list list-item">Oranges</li>
+      <li class="list list-item">Apples</li>
+    </ul>
+  </li>
+  <li class="list list-group">Vegetables
+    <ul>
+      <li class="list list-tag">Root
+        <ul>
+          <li class="list list-item">Potatoes</li>
+          <li class="list list-item">Carrots</li>
+          <li class="list list-tag">Herbs
+            <ul>
+              <li class="list list-item">Cilantro</li>
+              <li class="list list-item">Parsley</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li class="list list-item">Lettuce</li>
+    </ul>
+  </li>
+</ul>
+<script>
+  function walkList() {
+    let liList = document.querySelectorAll('li');
+
+    liList.forEach(li => {
+      if (li.classList.contains('list-group')) {
+        console.log(`${li.textContent.split(' ')[0].trim()}:`);
+      } else if (li.classList.contains('list-item')) {
+        console.log(`  ${li.textContent}`);
+      }
+    });
+  }
+</script>

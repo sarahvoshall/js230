@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Exercise 4: Booking Schedules</title>
+  <style>
+    select, input {
+      padding: 4px;
+    }
+
+    #add-student {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Schedules</h1>
+  <form>
+    <label for='id'>Please select a schedule:</label>
+    <select name='id'></select>
+    <label for='student_email'>Your email:</label>
+    <input type='email' name='student_email'>
+    <input type='submit'>
+  </form>
+
+  <form id='add-student'>
+    <h2>Please provide new student details</h2>
+    <label for='email'>Email:</label>
+    <input name='email' type='email'>
+    <label for='name'>Name:</label>
+    <input name='name'>
+    <label for='booking_sequence'>Booking Sequence:</label>
+    <input name='booking_sequence'>
+    <input type='submit'>
+  </form>
+
+  <script>
+    var App = {
+      form: document.querySelector('form'),
+      staff: {},
+
+      toJSON(form) {
+        const formData = new FormData(form);
+        var data = {};
+
+        for ([key, value] of formData) {
+          data[key] = value;
+        }
+
+        return data;
+      },
+
+      async getStaff() {
+        try {
+          const response = await fetch('api/staff_members');
+          const staffRegistry = await response.json();
+
+          [...staffRegistry].forEach(({ id, name }) => {
+            this.staff[id] = name;
+          });
+        } catch (error) {
+          alert(error.message);
+        }
+      },
+
+      async populateSelect() {
+        try {
+          await this.getStaff();
+          const response = await fetch('api/schedules');
+          const schedules = await response.json();
+          const select = document.querySelector('select');
+
+          [...schedules].forEach((schedule) => {
+            if (!schedule.student_email) {
+              const option = document.createElement('option');
+              option.textContent = `${this.staff[schedule.staff_id]} | ${schedule.date} | ${schedule.time}`;
+              option.value = schedule.id;
+
+              select.appendChild(option);
+            }
+          });
+        } catch (error) {
+          alert(error.message);
+        } 
+      },
+
+      renderNewStudentForm(email, bookingSequence) {
+        const addStudentForm = document.querySelector('#add-student');
+        addStudentForm.style.display = 'block';
+
+        addStudentForm.querySelector('input[name="email"]').value = email;
+        addStudentForm.querySelector('input[name="booking_sequence"]').value = Number(bookingSequence);
+
+        addStudentForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          var data = this.toJSON(addStudentForm);
+          this.addStudent(data);
+        });
+      },
+
+      async addStudent(data) {
+        try {
+          const response = await fetch('api/students', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          });
+
+          if (response.ok) {
+            alert('Student has been successfully added.');
+            this.completeBooking();
+          } else {
+            throw new Error('Failed')
+          }
+        } catch (error) {
+          alert(error);
+        }
+      },
+
+      async completeBooking() {
+        var data = this.toJSON(this.form);
+
+        try {
+          const response = await fetch('api/bookings', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          });
+
+          if (response.ok) {
+            alert('Successfully booked!');
+          } else {
+            const errorMessage = await response.text();
+            const bookingSequence = errorMessage.split(' ').pop();
+            this.renderNewStudentForm(data.student_email, bookingSequence);
+          }
+        } catch (error) {
+          alert(error);
+        }
+      },
+
+      init() {
+        this.populateSelect();
+        this.form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          var data = this.toJSON(this.form);
+          this.completeBooking(data);
+        });
+      },
+    };
+
+    App.init();
+  </script>
+</body>
+</html>

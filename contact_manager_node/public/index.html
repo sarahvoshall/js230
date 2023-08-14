@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Contact Manager</title>
+  <script src="/javascripts/jquery.js"></script>
+  <script src="/javascripts/handlebars.js"></script>
+  <script src='/javascripts/contacts.js'></script>
+</head>
+<body>
+  <header>
+    <h1>Contact Manager</h1>
+  </header>
+  <main>
+    <div id='utility-bar'>
+      <button id='add-contact'>Add Contact</button>
+      <input id='search' type='text' placeholder='search'></input>
+    </div>
+
+    <div id='dashboard'>
+    </div>
+
+    <fieldset id='create-edit-form' hidden>
+      <legend>Add a contact</legend>
+      <form>
+        <label for='name'>Name:</label>
+        <input name='name' type='text'>
+        <label for='email'>Email:</label>
+        <input name='email' type='email'>
+        <label for='phone_number'>Phone Number:</label>
+        <input name='phone_number' type='text'>
+        <label for='tag'>Tag:
+        <select name='tag'>
+          <option>Sales</option>
+          <option>Marketing</option>
+          <option>Engineering</option>
+        </select>
+        <input type='submit' value='Submit'>
+        <input type='reset' value='Cancel'>
+      </form>
+    </fieldset>
+
+    <script id='contact-template' type='text/x-handlebars'>
+      {{#each contacts}}
+      <fieldset id={{id}}>
+        <legend>{{full_name}}</legend>
+        <p>{{email}}</p>
+        <p>{{phone_number}}</p>
+        {{#if tags}}
+        {{#each tags}}
+        <a>{{this}}</a>
+        {{/each}}
+        {{else}}
+        <span>No tags</span>
+        {{/if}}
+        <button class='edit-button'>Edit</button>
+        <button class='delete-button'>Delete</button>
+      </fieldset>
+      {{/each}}
+    </script>
+  </main>
+  <footer>
+    <p>Created by Sarah Voshall for JS230</p>
+  </footer>
+</body>
+</html>

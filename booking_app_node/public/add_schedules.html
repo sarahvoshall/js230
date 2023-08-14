@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+  <script src="exercise4.js"></script>
+  <meta charset="UTF-8">
+  <title>Adding Schedules</title>
+  <style>
+
+  </style>
+</head>
+
+<body>
+  <button id="add_schedule">Add more schedules</button>
+  <form action="/api/schedules" method="post">
+    <fieldset>
+    	<legend>Schedule 1</legend>
+      <dl>
+        <dt>
+          <label for="staff_name">Staff Name:</label>
+        </dt>
+        <dd>
+          <select name="staff_name">
+          </select>
+        </dd>
+        <dt>
+          <label for="date">Date:</label>
+        </dt>
+        <dd>
+          <input type="text" name="date" placeholder="mm-dd-yy" />
+        </dd>
+        <dt>
+          <label for="time">Time:</label>
+        </dt>
+        <dd>
+          <input type="text" name="time" placeholder="hh:mm">
+        </dd>
+      </dl>
+    </fieldset>
+    <button type="submit">Submit</button>
+  </form>
+
+  <script>
+		document.addEventListener('DOMContentLoaded', event => {
+		  let staff;
+		  let scheduleCount = 1;
+
+		  // Make API request to retrieve all available staff members
+		  (function () {
+		    let request = new XMLHttpRequest();
+		    request.open("GET", "/api/staff_members");
+		    request.responseType = 'json';
+		    request.addEventListener('load', event => {
+		      staff = request.response;
+		      createStaffOptions();
+		    })
+		    request.send();
+		  })();
+
+		  // Populate select options
+		  function createStaffOptions() {
+		    let selectElement = document.querySelector('select');
+		    for (let i = 0; i < staff.length - 1; i++) {
+		      let { id, name } = staff[i];
+		      let optionElement = document.createElement('option');
+		      optionElement.value = id;
+		      optionElement.textContent = name;
+		      selectElement.appendChild(optionElement);
+		    }
+		  }
+
+		  // Add schedule button
+		  let form = document.querySelector('form');
+		  let fieldset = document.querySelector('fieldset');
+		  let addScheduleButton = document.getElementById('add_schedule');
+		  let submitButton = document.querySelector('[type="submit"]');
+
+		  function addFieldSet() {
+		  	scheduleCount += 1;
+		    let additionalFieldset = fieldset.cloneNode(true);
+		    additionalFieldset.querySelector('legend').textContent = `Schedule ${scheduleCount}`;
+		    form.insertBefore(additionalFieldset, submitButton);
+		  }
+
+		  // Add additional fieldset before the submit button on the form when clicked
+		  addScheduleButton.addEventListener('click', event => {
+		    addFieldSet();
+		  })
+
+		  // Build payload required for API request
+		  function getPayload() {
+		    let schedules = Array.from(document.querySelectorAll('fieldset'));
+		    let payload = schedules.map(schedule => {
+		      let staffId = Number(schedule.querySelector('[name="staff_name"]').value);
+		      let date = schedule.querySelector('[name="date"]').value;
+		      let time = schedule.querySelector('[name="time"]').value;
+		      return { staff_id: staffId, date: date, time: time };
+		    })
+		    return payload;
+		  }
+
+		  // Make API request to add one or more staff schedules when form is submitted
+		  form.addEventListener('submit', event => {
+		    event.preventDefault();
+		    let payload = getPayload();
+		    let data = JSON.stringify({ "schedules": payload });
+		    let request = new XMLHttpRequest();
+		    request.open('POST', 'http://localhost:3000/api/schedules');
+		    request.setRequestHeader("Content-Type", "application/json");
+		    request.addEventListener('load', event => {
+		      if (request.status === 201) {
+		        form.reset();
+		      }
+		      alert(request.response);
+		    })
+		    request.send(data);
+		  })
+		})
+  </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Selection Filters</title>
+</head>
+<body>
+  <script>
+    function getOptions(selection) {
+      const returnValue = {};
+
+      const classes = {
+        'Vertebrate': ['Bear', 'Turtle', 'Whale', 'Salmon', 'Ostrich'],
+        'Warm-blooded': ['Bear', 'Whale', 'Ostrich'],
+        'Cold-blooded': ['Salmon', 'Turtle'],
+        'Mammal': ['Bear', 'Whale'],
+        'Bird': ['Ostrich'],
+      };
+
+      const animals = {
+        'Bear': ['Vertebrate', 'Warm-blooded', 'Mammal'],
+        'Turtle': ['Vertebrate', 'Cold-blooded'],
+        'Whale': ['Vertebrate', 'Warm-blooded', 'Mammal'],
+        'Salmon': ['Vertebrate', 'Cold-blooded'],
+        'Ostrich': ['Vertebrate', 'Warm-blooded', 'Bird']
+      }; 
+
+      if (Object.keys(classes).includes(selection)) {
+        returnValue['animalClass'] = classes[selection];
+      } else {
+        returnValue['animals'] = animals[selection];
+      }
+
+      return returnValue;
+    }
+
+    function emptyDropdown(dropdown) {
+      Array.from(dropdown.children).forEach(option => option.remove());
+    }
+
+    function drawDropdown(dropdown, options) {
+      emptyDropdown(dropdown);
+
+      options.forEach(option => {
+        let target = document.createElement('option');
+        target.textContent = option;
+        target.value = option;
+        dropdown.appendChild(target);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('selection-filters');
+      const animalDropdown = document.getElementById('animals');
+      const classDropdown = document.getElementById('animal-classifications');
+      const clearButton = document.getElementById('clear');
+
+      form.addEventListener('change', (event) => {
+        let selected = event.target.value;
+        let optionsObject = getOptions(selected);
+        let dropdown;
+
+        if (Object.keys(optionsObject)[0] === 'animalClass') {
+          dropdown = animalDropdown; 
+        } else {
+          dropdown = classDropdown;
+        }
+
+        let optionsArray = Object.values(optionsObject)[0];
+
+        drawDropdown(dropdown, optionsArray);
+      });
+
+      clearButton.addEventListener('click', () => {
+        form.reset();
+      });
+    });
+  </script>
+
+  <form id="selection-filters" method="post" action="#">
+    <select id="animal-classifications">
+      <option value="Classifications" selected>Classifications</option>
+      <option value="Vertebrate">Vertebrate</option>
+      <option value="Warm-blooded">Warm-blooded</option>
+      <option value="Cold-blooded">Cold-blooded</option>
+      <option value="Mammal">Mammal</option>
+      <option value="Bird">Bird</option>
+    </select>
+    <select id="animals">
+      <option value="Animals" selected>Animals</option>
+      <option value="Bear">Bear</option>
+      <option value="Turtle">Turtle</option>
+      <option value="Whale">Whale</option>
+      <option value="Salmon">Salmon</option>
+      <option value="Ostrich">Ostrich</option>    
+    </select>
+    <button id="clear">Clear</button>  
+  </form>
+</body>
+</html>

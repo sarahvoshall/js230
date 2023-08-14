@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Node Swap</title>
+    <script>
+      // refactor so that nodes don't have to be siblings 
+      
+      function nodeSwap(nodeId1, nodeId2) {
+        // save original nodes to variables
+        const node1 = document.getElementById(nodeId1);
+        const node2 = document.getElementById(nodeId2);
+
+        // id parent node
+        const parentNode = node1.parentElement;
+
+        // check nodes exist and nodes are siblings
+        if (!node1 || !node2) {
+          return undefined;
+        } else if (!parentNode.children.namedItem(nodeId2)) {
+          return undefined;
+        }
+
+        // clone nodes to variables
+        const nodeClone1 = node1.cloneNode(true);
+        const nodeClone2 = node2.cloneNode(true);
+
+        // swap nodes
+        parentNode.replaceChild(nodeClone2, node1);
+        parentNode.replaceChild(nodeClone1, node2);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="3">
+      <div id="9"></div>
+      <div id="8"></div>
+      <div id="7"></div>
+    </div>
+    <div id="2"></div>
+    <div id="1">
+      <div id="4"></div>
+      <div id="5">
+        <div id="6"></div>
+      </div>
+    </div>
+  </body>
+</html>

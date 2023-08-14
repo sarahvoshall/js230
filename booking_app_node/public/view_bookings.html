@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>View Bookings</title>
+</head>
+<body>
+  <h1>Bookings</h1>
+
+  <ul id='dates'></ul>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const ulElement = document.querySelector('#dates');
+      let dates; 
+
+      // get dates
+      (function () {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/bookings');
+        xhr.responseType = 'json';
+        xhr.addEventListener('load', () => {
+          dates = xhr.response;
+          populateDates();
+        });
+        xhr.send()
+      })();
+
+      function populateDates() {
+        dates.forEach(date => {
+          let listElement = document.createElement('li');
+          let nestedUlElement = document.createElement('ul');
+          listElement.textContent = date;
+          listElement.appendChild(nestedUlElement);
+
+          ulElement.appendChild(listElement);
+        });
+      }
+
+      // make API request for all date's bookings
+      function getBookings(eventTarget, date) {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', `/api/bookings/${date}`);
+        xhr.responseType = 'json';
+        xhr.addEventListener('load', () => {
+          let bookings = xhr.response;
+
+          bookings.forEach(booking => {
+            let listElement = document.createElement('li');
+            listElement.textContent = booking.join(' | ');
+
+            eventTarget.firstElementChild.appendChild(listElement);
+          });
+        });
+        xhr.send();
+      }
+
+      // add event listener for dates 
+      ulElement.addEventListener('click', event => {
+        getBookings(event.target, event.target.textContent);
+      });
+    });
+  </script>
+</body>
+</html>

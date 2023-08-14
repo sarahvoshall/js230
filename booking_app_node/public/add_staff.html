@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Add a New Staff</title>
+</head>
+<body>
+	<form method='post' action='/api/staff_members'>
+		<dl>
+			<dt>
+				<label for='email'>Email</label>
+			</dt>
+			<dd>
+				<input id='email' type="email" name="email">
+			</dd>
+			<dt>
+				<label for='name'>Name</label>
+			</dt>
+			<dd>
+				<input id = 'name' type="text" name="name">
+			</dd>
+
+		</dl>
+		<input type="submit">
+	</form>
+	<script>
+    // helper function
+    function formDataToJSON(formData) {
+      const json = {}; 
+
+      for (const [key, value] of formData.entries()) {
+        json[key] = value;
+      }
+
+      return json;
+    }
+
+    const form = document.querySelector('form');
+
+    // vanilla
+    // form.addEventListener('submit', e => {
+    //   e.preventDefault();
+    //   const formData = new FormData(form);
+    //   const json = JSON.stringify(formDataToJSON(formData));
+    //   const xhr = new XMLHttpRequest();
+
+    //   xhr.open('POST', form.action);
+    //   xhr.setRequestHeader('Content-Type', 'application/json');
+    //   xhr.send(json);
+
+    //   xhr.addEventListener('load', () => {
+    //     switch (xhr.status) {
+    //     case 201:
+    //       const data = JSON.parse(xhr.response);
+    //       alert(`Successfully created staff with id: ${data.id}`);
+    //       form.reset();
+    //       break;
+    //     case 400: 
+    //       alert(xhr.responseText);
+    //     }
+    //   });
+    // });
+
+    // using promises
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const json = JSON.stringify(formDataToJSON(formData));
+      const xhr = new XMLHttpRequest();
+
+      xhr.open('POST', form.action);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(json);
+
+      const promise = new Promise((resolve, reject) => {
+        xhr.onload = () => {
+          if (xhr.status === 201) {
+            const data = JSON.parse(xhr.response);
+            resolve(data);
+          } else if (xhr.status === 400) {
+            reject(new Error(xhr.responseText));
+          } else {
+            reject(new Error(`Request failed with status: ${xhr.status}`));
+          }
+        };
+
+        xhr.onerror = () => {
+          reject(new Error('An error occurred while making the request.'));
+        };
+      });
+
+      promise
+        .then(data => {
+          alert(`Successfully created staff with id: ${data.id}`);
+          form.reset();
+        })
+        .catch(error => {
+          alert(`Error occurred: ${error.message}`);
+        })
+        .finally(() => {
+          alert('The request has been completed.');
+        });
+    });
+	</script>
+</body>
+</html>

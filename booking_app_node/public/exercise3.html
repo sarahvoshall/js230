@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Exercise 3: Adding Schedules</title>
+  <style>
+    body {
+      margin: 24px 300px;
+    }
+
+    form * {
+      display: block;
+    }
+
+    fieldset {
+      margin: 12px 0;
+      padding: 12px;
+    }
+  </style>
+</head>
+<body>
+  <button id='add-more'>Add more schedules</button>
+  <form action='api/schedules' method='POST'>
+    <fieldset>
+      <legend>Schedule 1</legend>
+      <label for='staff_id'>Staff Name:</label>
+      <select name='staff_id'>
+      </select>
+      <label for='date'>Date:</label>
+      <input name='date' type='text' />
+      <label for='time'>Time:</label>
+      <input name='time' type='text' />
+    </fieldset>
+    <button type='submit'>Submit</button>
+  </form>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const button = document.querySelector('#add-more');
+      const fieldset = document.querySelector('fieldset');
+      const form = document.querySelector('form');
+      const selectElement = document.querySelector('select');
+      const submitButton = document.querySelector('button[type="submit"]');
+      var scheduleCount = 1;
+
+      function toJSON(fieldset) {
+        var obj = {};
+
+        obj.staff_id = fieldset.querySelector('select').value;
+        obj.date = fieldset.querySelector('input[name="date"]').value;
+        obj.time = fieldset.querySelector('input[name="time"]').value;
+
+        return obj;
+      };
+
+      (function () {
+        var staff;
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'api/staff_members');
+        xhr.addEventListener('load', () => {
+          staff = JSON.parse(xhr.response);
+
+          [...staff].forEach(member => {
+            var optionElement = document.createElement('option');
+            optionElement.textContent = member.name;
+            optionElement.value = member.id;
+            selectElement.appendChild(optionElement);
+          });
+        });
+        xhr.send();
+      })();
+
+      button.addEventListener('click', () => {
+        scheduleCount += 1;
+
+        const newField = fieldset.cloneNode(true);
+        const legend = newField.querySelector('legend');
+
+        legend.textContent = `Schedule ${scheduleCount}`;
+        form.insertBefore(newField, submitButton);
+      });
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const fieldsets = document.querySelectorAll('fieldset');
+
+        var data = [...fieldsets].map(fieldset => toJSON(fieldset));
+
+        const xhr = new XMLHttpRequest();
+        xhr.open(form.method, form.action);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        xhr.addEventListener('load', () => {
+          alert(xhr.responseText)
+        });
+
+        xhr.send(JSON.stringify({ 'schedules': data }));
+      });
+    });
+  </script>
+</body>
+</html>

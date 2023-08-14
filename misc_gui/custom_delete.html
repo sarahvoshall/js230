@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Custom Delete Confirmation</title>
+  <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+
+  <script id='todo-template' type='text/x-handlebars'>
+    {{#each todos}}
+    <fieldset data-id={{id}}>
+      <p>{{title}}</p>
+      <button class='delete-todo'>Delete</button>
+    </fieldset>
+    {{/each}}
+  </script>
+
+  <style type='text/css'>
+    h1 {
+      text-align: center;
+    }
+
+    dialog {
+      display: none;
+      width: 500px;
+      height: 150px;
+      position: absolute;
+      z-index: 10;
+      top: 150px;
+      left: 50%;
+      margin-left: -200px;
+      border: 1px solid #ccc;
+      background: #eee;
+      border-radius: 4px;
+      box-sizing: border-box;
+      padding: 20px;
+    }
+
+    #overlay {
+      display: none;
+      position: absolute;
+      z-index: 5;
+      background: rgba(0, 0, 0, 0.3);
+    }
+  </style>
+
+</head>
+<body>
+  <div id='overlay'></div>
+  <header>
+    <h1>Todo List</h1>
+  </header>
+  <main>
+    <div id='todo-list-display'>
+    </div>
+
+    <dialog close>
+      <p>Are you sure?</p>
+      <button id='confirm-delete'>Yes</button>
+      <button id='cancel-delete'>No</button>
+    </dialog>
+  </main>
+
+	<script>
+    const todo_items = [
+      { id: 1, title: 'Homework' },
+      { id: 2, title: 'Shopping' },
+      { id: 3, title: 'Calling Mom' },
+      { id: 4, title: 'Coffee with John '}
+    ];
+
+    const App = {
+      todos: todo_items,
+      todoTemplateFunc: Handlebars.compile(document.querySelector('#todo-template').innerHTML),
+      todoList: document.querySelector('#todo-list-display'),
+      dialog: document.querySelector('dialog'),
+      overlay: document.querySelector('#overlay'),
+      toDelete: -1,
+
+      renderTodos() {
+        this.todoList.innerHTML = this.todoTemplateFunc({ todos: this.todos });
+      },
+
+      updateTodoList() {
+        this.todoList.innerHTML = '';
+        this.renderTodos();
+      },
+
+      handleDelete(e) {
+        e.stopPropagation();
+        this.dialog.style.display = 'block';
+        this.overlay.style.display = 'block';
+
+        this.toDelete = e.target.parentElement.getAttribute('data-id');
+      },
+
+      deleteTodo() {
+        let target;
+        
+        this.todos.forEach(todo => {
+          if (todo.id === Number(this.toDelete)) {
+            target = todo;
+          }
+        });
+
+        let index = this.todos.indexOf(target);
+        this.todos.splice(index, 1);
+      },
+
+      handleDialog(e) {
+        if (e.target.id === 'confirm-delete') {
+          this.deleteTodo();
+
+          this.updateTodoList();
+          this.dialog.style.display = 'none';
+        } else {
+          this.dialog.style.display = 'none';
+        }
+      },
+
+      init() {
+        this.renderTodos();
+        this.todoList.addEventListener('click', this.handleDelete.bind(this));
+        this.dialog.addEventListener('click', this.handleDialog.bind(this));
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      App.init();
+    });
+  
+    // document.addEventListener('DOMContentLoaded', () => {
+    //   const todoTemplateFunc = Handlebars.compile(document.querySelector('#todo-template').innerHTML);
+    //   const todoList = document.querySelector('#todo-list-display');
+    //   const dialog = document.querySelector('dialog');
+
+    //   function updateTodoList() {
+    //     todoList.innerHTML = '';
+    //     todoList.innerHTML = todoTemplateFunc({ todo_items: todo_items });
+    //   }
+
+    //   function renderTodoList() {
+    //     todoList.innerHTML = '';
+    //     todoList.innerHTML = todoTemplateFunc({ todo_items: todo_items });
+
+    //     document.querySelectorAll('.delete-todo').forEach(button => {
+    //       button.addEventListener('click', event => {
+    //         dialog.show();
+
+    //         let todoId = event.target.parentElement.getAttribute('data-id');
+    //         let target = todo_items.find(item => item.id === Number(todoId));
+
+    //         document.querySelector('#cancel-delete').addEventListener('click', event => {
+    //           dialog.close();
+    //         });
+
+    //         document.querySelector('#confirm-delete').addEventListener('click', event => {
+    //           todo_items.splice(todo_items.indexOf(target), 1);
+    //           dialog.close();
+    //           updateTodoList();
+    //         });
+    //       });
+    //     });
+    //   }
+
+    //   renderTodoList();
+    // });
+  </script>
+</body>
+</html>

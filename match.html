@@ -1,0 +1,32 @@
+<h1 class="items">Items</h1>
+<form id="order_form">
+  <p data-item-sku="bagel">
+    <label>
+      <input name="bagels" type="checkbox" checked>
+      <span>Bagels</span>
+     </label>
+  </p>
+  <p data-item-sku="turnip">
+    <label>
+      <input name="turnips" type="checkbox">
+      <span>Turnips</span>
+    </label>
+  </p>
+  <p data-item-sku="cumin">
+    <label>
+      <input name="cumin" type="checkbox">
+      <span>Cumin</span>
+    </label>
+  </p>
+  <p data-item-sku="orange_juice">
+    <label>
+      <input name="orange_juice" type="checkbox" checked>
+      <span>Orange Juice</span>
+    </label>
+  </p>
+</form>
+<script>
+  function isMatch(element, selector) {
+    return element.matches(selector);
+  }
+</script>

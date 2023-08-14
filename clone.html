@@ -1,0 +1,25 @@
+<main>
+  <ul class="list">
+    <li class="list-item">Item 1</li>
+    <li class="list-item">Item 1</li>
+    <li class="list-item">Item 1</li>
+  </ul>
+  <script>
+    function cloner(nodeSelector, parentSelector, position) {
+      const node = document.querySelector(nodeSelector)
+      const copy = node.cloneNode(true);
+      const parent = document.querySelector(parentSelector);
+
+      parent.insertAdjacentElement(position, copy);
+    }
+
+    // function cloner(nodeSelector, parentSelector, position) {
+    //   const copy = document.querySelector(nodeSelector);
+    //   const parent = document.querySelector(parentSelector);
+
+    //   parent.insertAdjacentElement(position, copy);
+    // }
+  </script>
+</main>
+
+<!-- cloner('.list', 'main', 'afterbegin'); -->

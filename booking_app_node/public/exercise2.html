@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Exercise 2: Adding Staff</title>
+  <style>
+    body {
+      margin: 24px 300px;
+    }
+
+    form * {
+      padding: 6px;
+    }
+  </style>
+</head>
+<body>
+  <fieldset>
+    <legend>Add a new staff member:</legend>
+    <form method='POST' action='api/staff_members'>
+      <label for='email'>Email:</label>
+      <input type='email' name='email'/>
+      <label for='name'>Name:</label>
+      <input type='text'name='name'/>
+
+      <button type='submit'>Submit</button>
+    </form>
+  </fieldset>
+
+  <script>
+    var App = {
+      form: document.querySelector('form'),
+
+      handleFormSubmit(e) {
+        e.preventDefault();
+        const json = this.toJSON();
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'api/staff_members');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.addEventListener('load', () => {
+          if (xhr.status === 201) {
+            const data = JSON.parse(xhr.response);
+            this.form.reset();
+            alert(`Staff has been successfully created with id ${data.id}.`);
+          } else {
+            alert(xhr.response);
+          }
+        });
+        xhr.send(json);
+      },
+
+      toJSON() {
+        const formData = new FormData(this.form);
+        const obj = {};
+
+        for ([key, value] of formData) {
+          obj[key] = value;
+        }
+
+        return JSON.stringify(obj);
+      },
+
+      init() {
+        this.form.addEventListener('submit', this.handleFormSubmit.bind(this));
+      },
+    }
+
+    App.init();
+  </script>
+</body>
+</html>

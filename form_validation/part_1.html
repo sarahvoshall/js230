@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Form Validation (Part 1)</title>
+  <style>
+    body {
+      background: #52be43;
+      font-family: sans-serif;
+      margin: 64px 300px;
+    }
+
+    h1 {
+      color: white;
+    }
+
+    form {
+      display: block;
+      padding: 24px;
+      border-radius: 5px;
+      background: white;
+    }
+
+    form * {
+      display: block;
+      padding: 8px;
+    }
+
+    form label {
+      padding: 8px 0;
+    }
+
+    input {
+      display: inline;
+      border: 1px solid gainsboro;
+      border-radius: 5px;
+    }
+
+    button[type='submit'] {
+      display: block;
+      color: white;
+      background: #52be43;
+      border-radius: 8px;
+      style: none;
+      border: none;
+      font-weight: bold;
+      font-size: 18px;
+      margin: 16px 0 0 0;
+    }
+
+    input[type='submit']:focus {
+      border: none;
+    }
+
+    input:focus {
+      outline: none;
+      border: 1px solid #52be43;
+    }
+
+    .invalid-field {
+      border: 1px solid darkred;
+    }
+
+    .error {
+      display: inline;
+      width: 100%;
+      padding: 0;
+      color: darkred;
+      border-radius: 5px;
+    }
+
+    .error.active {
+      padding: .3em;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Sign Up Form</h1>
+  </header>
+
+  <body>
+    <form method='POST' action='#' novalidate>
+      <span id='submit-error' class='error'></span>
+
+      <label for='first-name'>First Name</label>
+      <input type='text' id='first-name' required />
+      <span class='error'></span>
+
+      <label for='last-name'>Last Name</label>
+      <input type='text' id='last-name' required />
+      <span class='error'></span>
+
+      <label for='email'>Email</label>
+      <input type='email' id='email' required placeholder="name@example.com" />
+      <span class='error'></span>
+
+      <label for='password'>Password</label>
+      <input type='password' id='password' required minlength='10' />
+      <span class='error'></span>
+
+      <label for='phone'>Phone Number</label>
+      <input type='text' id='phone' pattern="^\d{3}-?\d{3}-?\d{4}$" placeholder='555-123-4567'/>
+      <span class='error'></span>
+
+      <button type='submit'>Sign Up</button>
+    </form>
+  </body>
+
+  <script>
+    var App = {
+      form: document.querySelector('form'),
+      inputs: document.querySelectorAll('input'),
+
+      handleFocus(event) {
+        let control = event.target;
+        control.nextElementSibling.textContent = '';
+        control.classList.remove('invalid-field');
+      },
+
+      handleBlur(event) {
+        let control = event.target;
+
+        if (this.form.checkValidity()) {
+          document.querySelector('#submit-error').textContent = '';
+        }
+
+        this.validateControl(control);
+      },
+
+      validateControl(control) {
+        if (control.validity.valueMissing) {
+          this.handleValueAbsence(control);
+          return false;
+        } else if (control.validity.patternMismatch) {
+          this.handlePatternMismatch(control);
+          return false;
+        }
+
+        return true;
+      },
+
+      handleValueAbsence(control) {
+        let label = document.querySelector(`label[for=${control.id}]`).textContent;
+        let errorMessage = `${label} is a required field.`;
+        let errorElement = control.nextElementSibling;
+
+        control.classList.add('invalid-field');
+        errorElement.textContent = errorMessage;
+      },
+
+      handlePatternMismatch(control) {
+        let label = document.querySelector(`label[for=${control.id}]`).textContent;
+        let errorMessage = `Please enter a valid ${label}.`;
+        let errorElement = control.nextElementSibling;
+
+        control.classList.add('invalid-field');
+        errorElement.textContent = errorMessage;
+
+        if (control.id === 'Password') {
+          errorElement.textContent = 'Password must be at least 10 characters long.'
+        }
+      },
+
+      handleFormSubmit(event) {
+        event.preventDefault();
+        if (this.form.checkValidity()) {
+          document.querySelector('#submit-error').textContent = '';
+        } else {
+          document.querySelector('#submit-error').textContent = 'Please correct errors before submitting form.';
+          this.validateFormInputs();
+          return false;
+        }
+      }, 
+
+      validateFormInputs() {
+        this.inputs.forEach(input => this.validateControl(input));
+      },
+
+      init() {
+        this.form.addEventListener('submit', this.handleFormSubmit.bind(this));
+        this.inputs.forEach(input => {
+          input.addEventListener('blur', this.handleBlur.bind(this));
+          input.addEventListener('focus', this.handleFocus.bind(this));
+        });
+      },
+    }
+
+    App.init()
+  </script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Multiple Choice Quiz</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+  <style>
+    body {
+      margin: 0 300px;
+      background: darkseagreen;
+    }
+
+    h2 {
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+    }
+
+    fieldset {
+      background: white;
+      margin: 8px;
+    }
+
+    input[type='radio'] {
+      display: inline;
+    }
+
+    #form-controls {
+      text-align: center;
+    }
+
+    .result {
+      padding: 8px 0;
+      display: block;
+    }
+
+    .incorrect {
+      color: red;
+    }
+
+    .correct {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <script type='text/x-handlebars-template' id='template'>
+    {{#each questions}} 
+      <fieldset>
+        <p>Q{{id}}. {{{description}}}</p>
+        {{#each options}}
+        <label>
+          <input type="radio" name="{{../id}}" value="{{this}}" />
+          {{this}}
+        </label>
+        {{/each}}
+        <span id="{{id}}" class='result'></span>
+      </fieldset>
+    {{/each}}
+  </script>
+
+  <header>
+    <h2>Multiple Choice Quiz</h2>
+  </header>
+  <body>
+    <form>
+      <div id='form-questions'></div>
+      <div id='form-controls'>
+        <button type='submit'>Submit Quiz</button>
+        <button type='reset'>Reset</button>
+      </div>
+    </form>
+  </body>
+
+  <script>
+    const questions = [
+      {
+        id: 1,
+        description: "Who is the author of <cite>The Hitchhiker's Guide to the Galaxy</cite>?",
+        options: ['Dan Simmons', 'Douglas Adams', 'Stephen Fry', 'Robert A. Heinlein'],
+      },
+      {
+        id: 2,
+        description: 'Which of the following numbers is the answer to Life, the \
+                      Universe and Everything?',
+        options: ['66', '13', '111', '42'],
+      },
+      {
+        id: 3,
+        description: 'What is Pan Galactic Gargle Blaster?',
+        options: ['A drink', 'A machine', 'A creature', 'None of the above'],
+      },
+      {
+        id: 4,
+        description: 'Which star system does Ford Prefect belong to?',
+        options: ['Aldebaran', 'Algol', 'Betelgeuse', 'Alpha Centauri'],
+      },
+    ];
+
+    const answerKey = { '1': 'Douglas Adams', '2': '42', '3': 'A drink', '4': 'Betelgeuse' };
+
+    var App = {
+      form: document.querySelector('form'),
+      questions: questions,
+      answerKey: answerKey,
+
+      renderQuestions() {
+        const templateSource = document.querySelector('#template').innerHTML;
+        const templateFunction = Handlebars.compile(templateSource);
+        const renderedHTML = templateFunction({questions: this.questions});
+        const form = document.querySelector('#form-questions');
+        form.innerHTML = renderedHTML;
+      },
+
+      handleFormSubmit(event) {
+        event.preventDefault();
+
+        const resultSpans = document.querySelectorAll('span');
+
+        resultSpans.forEach(span => {
+          this.displayResult(span);
+        });
+
+        document.querySelector('button[type="submit"]').disabled = true;
+      },
+
+      getAnswers() {
+        const formData = new FormData(this.form);
+        const answers = {};
+
+        for ([key, value] of formData) {
+          answers[key] = value;
+        }
+
+        return answers;
+      },
+
+      displayResult(span) {
+        const answers = this.getAnswers();
+
+        if (answers[span.id]) {
+          if (answers[span.id] === this.answerKey[span.id]) {
+            span.classList.remove('incorrect');
+            span.classList.add('correct');
+            span.textContent = 'Correct answer.';
+          } else {
+            span.classList.remove('correct');
+            span.classList.add('incorrect');
+            span.textContent = `Wrong answer. The correct answer is "${this.answerKey[span.id]}".`;
+          }
+        } else {
+          span.classList.remove('correct');
+          span.classList.add('incorrect');
+          span.textContent = `You didn't answer this question. The correct answer is "${this.answerKey[span.id]}".`
+        } 
+      },
+
+      handleFormReset() {
+        this.form.reset();
+        document.querySelectorAll('span').forEach(span => span.textContent = '');
+        document.querySelector('button[type="submit"]').disabled = false;      
+      },
+
+      init() {
+        document.addEventListener('DOMContentLoaded', () => {
+          this.renderQuestions();
+        });
+
+        this.form.addEventListener('reset', this.handleFormReset.bind(this));
+        this.form.addEventListener('submit', this.handleFormSubmit.bind(this));
+      },
+    }
+
+    App.init();
+  </script>
+</body>
+</html>

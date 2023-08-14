@@ -1,0 +1,42 @@
+<form id="form" method="post" action="todos">
+  <p>
+    <label>Todo title</label><br>
+    <input type="text" name="title">
+  </p>
+  <p>
+    <label>Description</label><br>
+    <input type="text" name="description">
+  </p>
+  <p>
+    <button type="submit">Submit</button>
+  </p>
+</form>
+<script>
+const form = document.getElementById('form');
+
+form.addEventListener('submit', (event) => {
+  event.preventDefault(); 
+
+  const formData = new FormData(form);
+  const json = JSON.stringify(Object.fromEntries(formData));
+
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', form.action);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+
+  xhr.addEventListener('load', () => {
+    if (xhr.status === 200) {
+      console.log('Form submitted successfully');
+    } else {
+      console.log('Form submission failed');
+    }
+  });
+
+  xhr.addEventListener('error', () => {
+    console.log('An error occurred while submitting the form');
+  });
+
+  xhr.send(json);
+});
+</script>
+

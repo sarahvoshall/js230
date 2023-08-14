@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Booking Time Slots</title>
+</head>
+<body>
+  <form id='booking' method='post' action='/api/bookings'>
+    <select></select>
+    <label for='email'>Email:</label>
+    <input type='email' name='email'>
+    <button type='submit'>Submit</button>
+  </form>
+
+  <form id='new-student' method='post' action='/api/students' style='display: none'>
+    <p>Register new student:</p>
+
+    <label for='email'>Email:</label>
+    <input type="email" name="email">
+    <label for='name'>Name:</label>
+    <input type="text" name="name">
+    <label for='booking-sequence'>Booking Sequence:</label>
+    <input type="text" name="booking-sequence">
+    <button id='new-student-submit' type='submit'>Submit</button>
+  </form>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let schedules;
+      let staff = {};
+
+      const select = document.querySelector('select');
+      const form = document.querySelector('#booking');
+
+      (async function () {
+        await getStaffMembers();
+        getSchedules();
+      })();
+
+      // make API request to retrieve staff members
+      function getStaffMembers() {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/staff_members');
+        xhr.responseType = 'json';
+        xhr.addEventListener('load', () => {
+          xhr.response.forEach(({ id, name }) => {
+            staff[id] = name;
+          });
+        });
+        xhr.send();
+      }
+
+      // make API request to retrieve schedules
+      function getSchedules() {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/schedules');
+        xhr.responseType = 'json';
+        xhr.addEventListener('load', event => {
+          schedules = xhr.response;
+          populateSelect();
+        });
+        xhr.send();
+      };
+
+      // populate select with available schedules
+      function populateSelect() {
+        for (let i = 0; i < schedules.length - 1; i += 1) {
+          let { id, staff_id, date, time, student_email } = schedules[i];
+
+          if (!student_email) {
+            let option = document.createElement('option');
+
+            option.textContent = `${staff[staff_id]} | ${date} | ${time}`;
+            option.value = id;
+            select.appendChild(option);
+          }
+        }
+      }
+
+      // get payload from form
+      function getPayload() {
+        let input = document.querySelector('input');
+
+        let bookingId = Number(select.value);
+        let studentEmail = input.value;
+
+        return { id: bookingId, student_email: studentEmail };
+      }
+
+      // render new student form
+      function renderNewStudentForm(email, bookingSequence) {
+        const newStudentForm = document.querySelector('#new-student');
+        const emailElement = newStudentForm.querySelector('[name="email"]');
+        const bookingSequenceElement = newStudentForm.querySelector('[name="booking-sequence"]');
+
+        emailElement.value = email;
+        bookingSequenceElement.value = bookingSequence;
+
+        newStudentForm.style = 'display: block';
+
+        newStudentForm.addEventListener('submit', event => {
+          event.preventDefault();
+
+          registerStudent();
+        });
+      }
+
+      // get payload from new student form
+      function getNewStudentPayload() {
+        const newStudentForm = document.querySelector('#new-student');
+        const studentEmail = newStudentForm.querySelector('[name="email"]').value;
+        const name = newStudentForm.querySelector('[name="name"]').value;
+        const bookingSequence = newStudentForm.querySelector('[name="booking-sequence"]').value;
+
+        return { email: studentEmail, name: name, booking_sequence: bookingSequence }
+      }
+
+      function getBookingSequence(response) {
+        return Number(response.split(' ').splice(-1));      
+      }
+
+      // register new student
+      function registerStudent(response) {
+        let payload = getNewStudentPayload();
+        let data = JSON.stringify(payload);
+
+        let xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/students');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.addEventListener('load', () => {
+          if (xhr.status === 201) {
+            alert('Successfully added student to the database');
+            completeBooking();
+          } else {
+            alert(xhr.response);
+          }
+        });
+        xhr.send(data);
+      }
+
+      // make API POST request to schedule booking
+      function completeBooking() {
+        let payload = getPayload();
+        let data = JSON.stringify(payload);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/bookings');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.addEventListener('load', () => {
+          if (xhr.status === 204) {
+            alert('Booked');
+          } else {
+            let bookingSequence = getBookingSequence(xhr.response);
+            let email = document.querySelector('input').value;
+            renderNewStudentForm(email, bookingSequence);
+          }
+        });
+        xhr.send(data);
+      } 
+
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+
+        completeBooking();
+      });
+    });
+  </script>
+</body>
+</html>
